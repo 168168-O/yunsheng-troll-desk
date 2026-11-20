@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>巨魔推演台</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;
+font-family:"Comic Sans MS","Chalkboard SE","PingFang SC","Microsoft YaHei",system-ui,sans-serif;}
+body{min-height:100vh;padding:8px 8px 40px;color:#eaffd0;overflow-x:hidden;
+background:#0b1607;
+background-image:
+ radial-gradient(circle at 15% 8%,rgba(182,255,60,0.20),transparent 42%),
+ radial-gradient(circle at 88% 78%,rgba(160,32,240,0.22),transparent 45%),
+ repeating-linear-gradient(115deg,rgba(74,124,31,0.10) 0 12px,transparent 12px 26px);}
+a{color:#b6ff3c;}
+
+/* 漂着的嘲讽表情 */
+.floaters{position:fixed;inset:0;pointer-events:none;z-index:0;}
+.floaters span{position:absolute;font-size:26px;opacity:.35;animation:drift 9s ease-in-out infinite;}
+.floaters span:nth-child(1){left:4%;top:12%;animation-delay:0s}
+.floaters span:nth-child(2){left:88%;top:22%;animation-delay:1.2s;font-size:32px}
+.floaters span:nth-child(3){left:12%;top:68%;animation-delay:2.4s}
+.floaters span:nth-child(4){left:78%;top:76%;animation-delay:3.1s;font-size:30px}
+.floaters span:nth-child(5){left:46%;top:6%;animation-delay:4.2s}
+@keyframes drift{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-22px) rotate(12deg)}}
+
+header{position:relative;z-index:1;text-align:center;margin:6px 0 10px;}
+.troll-face{width:86px;height:86px;margin:0 auto 4px;animation:bounce 2.2s ease-in-out infinite;filter:drop-shadow(0 0 14px rgba(182,255,60,.55));}
+@keyframes bounce{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-9px) rotate(3deg)}}
+h1{font-size:24px;letter-spacing:1px;line-height:1.15;
+background:linear-gradient(90deg,#b6ff3c,#ff4fd8,#a020f0,#b6ff3c);
+background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
+animation:rainbow 4s linear infinite;}
+@keyframes rainbow{to{background-position:300% 0}}
+h1 .zap{display:inline-block;color:#0b1607;background:#ff4fd8;-webkit-text-fill-color:#0b1607;
+padding:0 6px;border-radius:6px;transform:rotate(-3deg);font-size:20px;}
+.sub{font-size:12px;color:#9fd07a;margin-top:5px;}
+.sub b{color:#ff4fd8;}
+
+.bubble{position:relative;z-index:1;margin:8px 0 10px;background:#b6ff3c;color:#0b1607;
+border-radius:14px 14px 14px 2px;padding:9px 11px;font-size:14px;font-weight:bold;
+border:2px solid #0b1607;box-shadow:4px 4px 0 #a020f0;cursor:pointer;}
+
+.card{position:relative;z-index:1;background:rgba(20,40,12,0.78);border:2px dashed rgba(182,255,60,0.45);
+border-radius:14px;padding:10px;margin-bottom:8px;box-shadow:0 0 0 1px rgba(160,32,240,0.25) inset;}
+.card:nth-of-type(2n){border-color:rgba(255,79,216,0.45);}
+.card-title{font-size:15px;color:#b6ff3c;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;}
+.card-title .mini{font-size:11px;color:#ff4fd8;}
+textarea,input[type="text"]{width:100%;border:2px solid rgba(182,255,60,0.35);border-radius:10px;padding:8px;
+background:rgba(0,0,0,0.35);color:#eaffd0;font-size:14px;resize:none;outline:none;}
+textarea{min-height:72px;}
+textarea:focus,input[type="text"]:focus{border-color:#ff4fd8;box-shadow:0 0 10px rgba(255,79,216,.45);}
+textarea::placeholder,input::placeholder{color:#6f9455;}
+.info-row{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px dashed rgba(182,255,60,0.15);font-size:14px;}
+.info-label{color:#9fd07a;white-space:nowrap;}
+.info-val{text-align:right;color:#fff;}
+
+.cold-item{display:flex;align-items:center;margin:6px 0;font-size:14px;}
+.cold-name{width:58px;color:#eaffd0;}
+.cold-bar{flex:1;height:13px;background:rgba(0,0,0,0.5);border:1px solid rgba(182,255,60,0.3);
+border-radius:7px;margin:0 8px;overflow:hidden;}
+.cold-fill{height:100%;background:linear-gradient(90deg,#a020f0,#ff4fd8,#b6ff3c);transition:width .35s;}
+.cold-val{width:30px;text-align:right;color:#ff4fd8;font-weight:bold;}
+
+.btn{position:relative;z-index:1;width:100%;padding:14px;border:3px solid #0b1607;border-radius:12px;
+background:linear-gradient(90deg,#b6ff3c,#7dff9b);color:#0b1607;font-size:18px;font-weight:bold;
+margin:10px 0;cursor:pointer;box-shadow:5px 5px 0 #a020f0;letter-spacing:2px;}
+.btn:active{transform:translate(5px,5px);box-shadow:0 0 0 #a020f0;}
+.btn-small{padding:5px 10px;font-size:12px;width:auto;background:rgba(255,79,216,0.18);color:#ff4fd8;
+border:2px solid rgba(255,79,216,0.5);border-radius:8px;cursor:pointer;}
+
+.result-item{padding:9px 0;border-bottom:1px solid rgba(182,255,60,0.12);}
+.res-head{display:flex;justify-content:space-between;gap:6px;font-size:14px;margin-bottom:6px;}
+.res-name{font-weight:bold;color:#fff;}
+.res-score{color:#b6ff3c;font-weight:bold;white-space:nowrap;}
+.res-bar{height:7px;background:rgba(0,0,0,0.5);border-radius:4px;overflow:hidden;}
+.res-fill{height:100%;background:linear-gradient(90deg,#a020f0,#ff4fd8,#b6ff3c);transition:width .4s;}
+.tag{font-size:11px;color:#ff8be4;margin-left:5px;font-weight:normal;}
+.tag-hot{color:#ffd93d;}
+.tag-fake{color:#8f8f8f;text-decoration:line-through;}
+
+.stamp{position:absolute;right:8px;top:8px;transform:rotate(-14deg);border:3px solid #ff3b3b;color:#ff3b3b;
+padding:3px 8px;font-size:13px;font-weight:bold;border-radius:6px;opacity:0;letter-spacing:2px;}
+.stamp.on{opacity:.92;animation:pop .45s ease-out;}
+@keyframes pop{0%{transform:rotate(-14deg) scale(2.4)}100%{transform:rotate(-14deg) scale(1)}}
+
+.odds{font-size:12px;color:#9fd07a;margin-top:6px;line-height:1.5;}
+.odds b{color:#ff4fd8;}
+.marquee{position:fixed;left:0;right:0;bottom:0;z-index:2;overflow:hidden;background:#0b1607;
+border-top:2px dashed rgba(182,255,60,0.35);padding:5px 0;}
+.marquee span{display:inline-block;white-space:nowrap;font-size:12px;color:#b6ff3c;
+animation:slide 16s linear infinite;}
+@keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+</style>
+
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0b1607">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="巨魔推演台">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<style>
+.install-bar{position:fixed;left:8px;right:8px;bottom:34px;z-index:5;display:none;}
+.install-bar button{width:100%;padding:11px;border:3px solid #0b1607;border-radius:11px;
+background:linear-gradient(90deg,#ff4fd8,#b6ff3c);color:#0b1607;font-size:15px;font-weight:bold;
+box-shadow:4px 4px 0 #a020f0;letter-spacing:1px;cursor:pointer;}
+.install-bar button:active{transform:translate(4px,4px);box-shadow:0 0 0 #a020f0;}
+.offline-pill{position:fixed;left:50%;top:10px;transform:translateX(-50%);z-index:6;
+background:#ff4fd8;color:#0b1607;font-size:12px;font-weight:bold;padding:5px 10px;border-radius:20px;
+border:2px solid #0b1607;display:none;}
+</style>
+</head>
+<body>
+
+<div class="floaters"><span>🤡</span><span>💀</span><span>🐸</span><span>🃏</span><span>🧌</span></div>
+
+<header>
+<svg class="troll-face" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="50" cy="52" rx="36" ry="32" fill="#6fbf2a" stroke="#0b1607" stroke-width="3"/>
+  <ellipse cx="26" cy="42" rx="12" ry="11" fill="#5aa61f" stroke="#0b1607" stroke-width="2"/>
+  <ellipse cx="74" cy="42" rx="12" ry="11" fill="#5aa61f" stroke="#0b1607" stroke-width="2"/>
+  <circle cx="34" cy="46" r="5" fill="#0b1607"/>
+  <circle cx="66" cy="46" r="5" fill="#0b1607"/>
+  <circle cx="36" cy="44" r="1.8" fill="#fff"/>
+  <circle cx="68" cy="44" r="1.8" fill="#fff"/>
+  <path d="M28 62 Q50 84 72 62 Q50 72 28 62 Z" fill="#0b1607"/>
+  <path d="M34 63 L40 71 L44 62" fill="#fff"/>
+  <path d="M52 63 L56 71 L62 62" fill="#fff"/>
+  <path d="M50 20 L46 30 L54 30 Z" fill="#ff4fd8"/>
+</svg>
+<h1>云盛推演台 <span class="zap">巨魔版</span></h1>
+<div class="sub">图鉴顺延 · 生肖冲合 · 杀大赔小 · <b>全部瞎编</b></div>
+</header>
+
+<div class="bubble" id="taunt" onclick="mock()">点我，我夸你两句（骗你的）</div>
+
+<div class="card">
+<div class="card-title">1. 上一场结果<span class="mini">我只看这个</span></div>
+<input type="text" id="lastResult" placeholder="例如：蛇（填别的我也照样编）">
+</div>
+
+<div class="card">
+<div class="card-title">2. 本场资料<span class="mini">粘了也不影响我瞎编</span></div>
+<textarea id="inputText" placeholder="整段复制粘贴本场信息，我尽量装作在认真读..."></textarea>
+</div>
+
+<div class="card">
+<div class="card-title">3. 已识别信息<span class="mini">识别率随缘</span></div>
+<div class="info-row"><span class="info-label">属相</span><span class="info-val" id="resZodiac">—</span></div>
+<div class="info-row"><span class="info-label">诗句</span><span class="info-val" id="resPoem">—</span></div>
+<div class="info-row"><span class="info-label">提示词</span><span class="info-val" id="resTip">—</span></div>
+</div>
+
+<div class="card">
+<div class="card-title">4. 冷宝统计<span class="mini">你自己录的，我不看</span></div>
+<div id="coldWrap"></div>
+<button class="btn-small" onclick="editCold()">编辑冷宝数据</button>
+</div>
+
+<button class="btn" id="runBtn">开 始 被 割</button>
+
+<div class="card" id="resultCard" style="display:none;">
+<div class="card-title"><span id="resTitle">推演排名</span><span class="mini" id="resFake">巨魔值 —</span></div>
+<div class="stamp" id="stamp">已 收 割</div>
+<div id="resultWrap"></div>
+<div class="odds" id="resOdds"></div>
+</div>
+
+<div class="marquee"><span>🧌 巨魔保佑 · 你必输 · 巨魔保佑 · 你必输 · 巨魔保佑 · 你必输 · 巨魔保佑 · 你必输 · 巨魔保佑 · 你必输 · 巨魔保佑 · 你必输 · </span></div>
+
+<script>
+// ================= 核心字典库（原封不动）=================
+const tuJianDB = {
+    "蛇": { duitou: "马鹿", bichu: ["螺蛳", "金龙", "青蛙", "宝石", "红燕", "鸽子", "蝴蝶", "乌龟", "蚯蚓", "老虎", "兔子", "牛", "飞龙", "马", "大象", "野猫"] },
+    "白鱼": { duitou: "飞龙", bichu: ["红燕", "乌鸦", "乌龟", "鸡", "兔子", "羊", "马", "蛇", "蜘蛛", "螃蟹", "飞龙", "家猫", "仙鹤", "尼姑"] },
+    "金鱼": { duitou: "宝石", bichu: ["青蛙", "蚯蚓", "兔子", "蜘蛛", "飞龙", "蜜蜂", "大象"] },
+    "螃蟹": { duitou: "大象", bichu: ["白鱼", "螺蛳", "宝石", "蝴蝶", "鸽子", "金龙", "乌龟", "黄鳝", "鸡", "蚯蚓", "猪", "老虎", "狗", "马", "老鼠", "大象", "家猫", "尼姑"] },
+    "蚯蚓": { duitou: "黄蜂", bichu: ["黄鳝", "牛", "兔子", "羊", "飞龙", "马鹿", "蜘蛛", "螃蟹", "蛇", "乌龟", "金鱼", "鸡", "老虎"] },
+    "猪": { duitou: "猴子", bichu: ["孔雀", "大鹅", "螺蛳", "白鱼", "牛", "老虎", "兔子", "蚯蚓", "宝石", "鸡", "金鱼", "羊", "蜘蛛", "飞龙", "马鹿"] },
+    "白马": { duitou: "青蛙", bichu: ["老虎", "乌鸦", "乌龟", "牛", "猪", "兔子", "蚯蚓", "螃蟹", "大象", "飞龙", "老鼠", "蜜蜂"] }
+};
+
+const zodiacRules = {
+    "狗": { he: ["兔"], sanhe: ["虎", "马"], chong: ["龙"] },
+    "鸡": { he: ["龙"], sanhe: ["蛇", "牛"], chong: ["兔"] },
+    "牛": { he: ["鼠"], sanhe: ["蛇", "鸡"], chong: ["羊"] },
+    "猴": { he: ["蛇"], sanhe: ["鼠", "龙"], chong: ["虎"] },
+    "鼠": { he: ["牛"], sanhe: ["猴", "龙"], chong: ["马"] },
+    "猪": { he: ["虎"], sanhe: ["兔", "羊"], chong: ["蛇"] }
+};
+
+let coldList = JSON.parse(localStorage.getItem("coldData")) || [
+    {name:"兔子",miss:81},{name:"大象",miss:20},{name:"野猫",miss:19},{name:"狗",miss:19},{name:"孔雀",miss:18}
+];
+
+const MOCKS = [
+    "就这？你居然真的在找规律。",
+    "笑死，这分数是我用骰子摇的。",
+    "再点一次排名就变，你信不信？",
+    "图鉴顺延？那是我昨晚编的。",
+    "你以为这是算法，这是随机数穿了件西装。",
+    "头名我已经内定了，就是你最想的那只。",
+    "别看了，庄家赢麻了。",
+    "你录的冷宝数据我一个都没读，别演了。",
+    "认真你就输了，我这页连注释都是骗你的。",
+    "要不要我夸你一句？你眼光真好（骗你的）。"
+];
+
+function mock() {
+    const box = document.getElementById("taunt");
+    const pick = MOCKS[Math.floor(Math.random() * MOCKS.length)];
+    box.textContent = pick;
+    box.style.transform = "rotate(" + (Math.random() * 4 - 2).toFixed(1) + "deg)";
+}
+
+// 渲染进度条
+function renderCold(){
+    let html="";
+    let sorted = [...coldList].sort((a,b)=>b.miss - a.miss).slice(0, 10);
+    let maxMiss = Math.max(1, ...sorted.map(i=>i.miss));
+    sorted.forEach(i=>{
+        let pct = Math.min(i.miss / maxMiss * 100, 100);
+        html += `<div class="cold-item"><div class="cold-name">${i.name}</div><div class="cold-bar"><div class="cold-fill" style="width:${pct}%"></div></div><div class="cold-val">${i.miss}</div></div>`;
+    });
+    document.getElementById("coldWrap").innerHTML = html;
+}
+function saveCold(){ localStorage.setItem("coldData", JSON.stringify(coldList)); }
+function editCold(){
+    let str = prompt("按格式录入：兔子:81,大象:20,野猫:19","");
+    if(!str) return;
+    let arr = str.split(/[,，]/);
+    let tmp = [];
+    arr.forEach(s=>{
+        let p = s.split(/[:：]/);
+        if(p.length < 2) return;
+        let n = p[0].trim();
+        let v = Number(p[1].trim());
+        if(n && !isNaN(v)) tmp.push({name:n, miss:v});
+    });
+    if(tmp.length === 0){ alert("格式不对，示例：兔子:81,大象:20"); return; }
+    coldList = tmp; saveCold(); renderCold();
+    document.getElementById("taunt").textContent = "录完了？我一眼都没看。";
+}
+
+// 自动识别文本
+document.getElementById("inputText").oninput = function(){
+    let txt = this.value;
+    const Z = "(鼠|牛|虎|兔|龙|蛇|马|羊|猴|鸡|狗|猪)";
+    let zMatch = txt.match(new RegExp("(?:属相|生肖|本肖|生肖属|本期属)\\s*[:：]?\\s*[\\[\\(【]?\\s*" + Z))
+              || txt.match(new RegExp("属" + Z));
+    if(!zMatch) zMatch = txt.match(new RegExp(Z));
+    let pMatch = txt.match(/题目[:：]?\s*([\s\S]*?)(?=宝岗|译文|提示|数字|$)/);
+    let tips = [];
+    txt.split('\n').forEach(line => {
+        if(line.includes("提示")) {
+            let clean = line.replace(/.*?提示[:：]?\s*/, '').replace(/[☘️🌴🍀♥️]/g, '').trim();
+            if(clean && clean.length > 1) tips.push(clean);
+        }
+    });
+    document.getElementById("resZodiac").innerText = zMatch ? zMatch[1] : "—";
+    document.getElementById("resPoem").innerText = pMatch ? pMatch[1].replace(/[\n\r（(].*?[)）]/g, '').trim() : "—";
+    document.getElementById("resTip").innerText = tips.length > 0 ? tips.join(" / ") : "—";
+};
+
+// 核心推演算法
+document.getElementById("runBtn").onclick = () => {
+    let lastGame = document.getElementById("lastResult").value.trim();
+    let zodiac = document.getElementById("resZodiac").innerText;
+    let poem = document.getElementById("resPoem").innerText;
+    let tipText = document.getElementById("resTip").innerText;
+
+    if(lastGame === "") {
+        alert("先填上一场！不填我编不出来，我只是巨魔，不是神仙。");
+        return;
+    }
+
+    let resWrap = document.getElementById("resultWrap");
+    let resCard = document.getElementById("resultCard");
+    resCard.style.display = "block";
+    mock();
+
+    let animals = ["兔子","马鹿","马","白马","螃蟹","大象","野猫","家猫","狗","孔雀","蝴蝶","牛","乌鸦","尼姑","蜘蛛","宝石","乌龟","飞龙","金龙","老鼠","鸽子","猪","大鹅","蚯蚓","鸡","蛇","白鱼","金鱼","羊","仙鹤","老虎","燕子","螺丝","螺蛳","鳝鱼","黄鳝","猴子","青蛙","蜜蜂","黄蜂","红燕"];
+    let scores = {};
+    animals.forEach(a => scores[a] = 50);
+
+    // 1. 图鉴顺延
+    if (tuJianDB[lastGame]) {
+        let db = tuJianDB[lastGame];
+        if(scores[db.duitou] !== undefined) scores[db.duitou] += 30;
+        db.bichu.forEach(animal => {
+            if(scores[animal] !== undefined) scores[animal] += 20;
+        });
+    }
+
+    // 2. 生肖暗线
+    if (zodiacRules[zodiac]) {
+        let rules = zodiacRules[zodiac];
+        rules.he.forEach(a => { if(scores[a]!==undefined) scores[a] += 15; });
+        rules.sanhe.forEach(a => { if(scores[a]!==undefined) scores[a] += 10; });
+        rules.chong.forEach(a => { if(scores[a]!==undefined) scores[a] += 15; });
+    }
+
+    // 3. NLP 文本匹配
+    let allText = poem + tipText;
+    if (allText.includes("花") || allText.includes("草")) { scores["蝴蝶"] += 10; scores["家猫"] += 10; }
+    if (allText.includes("猫") || allText.includes("鼠")) { scores["家猫"] += 15; scores["老鼠"] += 15; }
+    if (allText.includes("龙") || allText.includes("飞")) { scores["飞龙"] += 10; scores["金龙"] += 10; }
+    if (allText.includes("马")) { scores["马"] += 10; scores["马鹿"] += 10; }
+
+    // 4. 杀大赔小风控
+    coldList.forEach(item => {
+        if (scores[item.name] !== undefined) {
+            if (item.miss > 50) scores[item.name] -= 60;
+            else if (item.miss > 20) scores[item.name] -= 20;
+            else if (item.miss <= 2) scores[item.name] -= 10;
+        }
+    });
+
+    // 5. 排序出榜
+    let sortedArr = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+    let html = "";
+
+    for (let i = 0; i < 10; i++) {
+        let name = sortedArr[i][0];
+        let score = sortedArr[i][1];
+        let displayScore = Math.min(Math.max(score, 0), 100);
+
+        let hit = coldList.find(c => c.name === name);
+        let miss = hit ? hit.miss : undefined;
+        let missText = miss !== undefined ? `<span style="font-size:12px;color:#9fd07a;">遗漏${miss}</span>` : "";
+
+        let tag = "";
+        if (miss !== undefined && miss > 50) tag = `<span class="tag">极冷陷阱</span>`;
+        else if (tuJianDB[lastGame] && name === tuJianDB[lastGame].duitou) tag = `<span class="tag tag-hot">对头绝杀</span>`;
+        if (i === 0) tag += `<span class="tag tag-fake">内定</span>`;
+
+        html += `
+        <div class="result-item">
+            <div class="res-head">
+                <span class="res-name">${i+1}. ${name}${missText} ${tag}</span>
+                <span class="res-score">${score} 分</span>
+            </div>
+            <div class="res-bar">
+                <div class="res-fill" style="width:${displayScore}%"></div>
+            </div>
+        </div>`;
+    }
+    resWrap.innerHTML = html;
+
+    // 巨魔装饰
+    document.getElementById("resTitle").textContent = ["推演排名（内定）","内定名单","我瞎排的榜","你必输名单"][Math.floor(Math.random()*4)];
+    document.getElementById("resFake").textContent = "巨魔值 " + (60 + Math.floor(Math.random()*40));
+    document.getElementById("resOdds").innerHTML =
+        "头名：<b>" + sortedArr[0][0] + "</b>　｜　真实胜率：<b>0%</b>　｜　本轮样本：<b>" +
+        (60 + Math.floor(Math.random()*400)) + " 只巨魔</b><br>注：本页所有数字均由巨魔手动打乱，头名每天都换。";
+    const st = document.getElementById("stamp");
+    st.classList.remove("on");
+    void st.offsetWidth;
+    st.classList.add("on");
+};
+renderCold();
+</script>
+
+<div class="offline-pill" id="offlinePill">🃏 离线模式 · 巨魔照跑</div>
+<div class="install-bar" id="installBar" style="display:none"></div>
+<script>
+(function () {
+  // 注册 Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js', { scope: './' }).catch(function () {});
+    });
+  }
+
+  // 安装提示：Chromium 系把 beforeinstallprompt 交给我们自己弹
+  var deferred = null;
+  var bar = document.getElementById('installBar');
+  var btn = document.getElementById('installBtn');
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    deferred = e;
+    bar.style.display = 'block';
+  });
+  if (btn) {
+    btn.addEventListener('click', function () {
+      if (!deferred) return;
+      deferred.prompt();
+      deferred.userChoice.then(function () {
+        deferred = null;
+        bar.style.display = 'none';
+        var t = document.getElementById('taunt');
+        if (t) t.textContent = '装好了？巨魔已经住进你桌面了。';
+      });
+    });
+  }
+  window.addEventListener('appinstalled', function () {
+    bar.style.display = 'none';
+    var t = document.getElementById('taunt');
+    if (t) t.textContent = '安装成功，现在关掉网页也甩不掉我。';
+  });
+
+  // 离线提示
+  var pill = document.getElementById('offlinePill');
+  function syncNet() { pill.style.display = navigator.onLine ? 'none' : 'block'; }
+  window.addEventListener('online', syncNet);
+  window.addEventListener('offline', syncNet);
+  syncNet();
+})();
+</script>
+</body>
+</html>
