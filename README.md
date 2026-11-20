@@ -2,6 +2,12 @@
 
 一个纯前端、零依赖、单文件的生肖推演玩具。输入上一场结果与本场谜面，按固定权重算分排名，界面是一整套沼泽绿 + 霓虹粉的巨魔皮肤。
 
+在线预览（GitHub Pages，https，可直接安装 PWA）：
+
+- 原版 https://168168-o.github.io/yunsheng-troll-desk/
+- 巨魔版 https://168168-o.github.io/yunsheng-troll-desk/troll.html
+- 可安装 https://168168-o.github.io/yunsheng-troll-desk/troll-app/
+
 三份产物，同一套引擎：
 
 | 入口 | 说明 |
