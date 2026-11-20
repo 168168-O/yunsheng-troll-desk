@@ -1,0 +1,24 @@
+{
+  "name": "云盛推演台 · 巨魔版",
+  "short_name": "巨魔推演",
+  "description": "图鉴顺延 · 生肖冲合 · 杀大赔小风控，全部瞎编",
+  "lang": "zh-CN",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "id": "yunsheng-troll-desk",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "portrait",
+  "background_color": "#0b1607",
+  "theme_color": "#0b1607",
+  "categories": ["entertainment", "utilities"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "直接开割", "short_name": "开割", "url": "./index.html#run" }
+  ]
+}
