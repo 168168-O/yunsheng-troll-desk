@@ -1,0 +1,23 @@
+{
+  "name": "yunsheng-troll-desk",
+  "version": "1.0.0",
+  "private": true,
+  "description": "云盛推演台 · 巨魔版 —— 网页 / PWA / iOS 原生壳",
+  "scripts": {
+    "build:web": "node tools/build-app.js && node tools/sync-www.js",
+    "serve": "node serve.js 8080",
+    "cap:add:ios": "cap add ios",
+    "cap:sync:ios": "cap sync ios",
+    "icons": "python tools/make-icons.py"
+  },
+  "dependencies": {
+    "@capacitor/core": "^7.4.0",
+    "@capacitor/ios": "^7.4.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.4.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
